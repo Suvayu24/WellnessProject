@@ -1,6 +1,7 @@
 import Navbar from '../components/Navbar'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useState } from 'react'
+import { marked } from 'marked'
 
 function LecturePage() {
   const navigate = useNavigate()
@@ -26,6 +27,41 @@ function LecturePage() {
 
   const handleDeleteNote = (id) => {
     setSavedNotes(savedNotes.filter(note => note.id !== id))
+  }
+
+  // Text formatting for textarea
+  const formatText = (command) => {
+    const textarea = document.getElementById('note-textarea')
+    if (!textarea) return
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    let before = noteText.substring(0, start)
+    let selected = noteText.substring(start, end)
+    let after = noteText.substring(end)
+    let formatted = selected
+    switch (command) {
+      case 'bold':
+        formatted = `**${selected || 'bold text'}**`
+        break
+      case 'italic':
+        formatted = `*${selected || 'italic text'}*`
+        break
+      case 'underline':
+        formatted = `<u>${selected || 'underline text'}</u>`
+        break
+      case 'strikethrough':
+        formatted = `~~${selected || 'strikethrough'}~~`
+        break
+      default:
+        break
+    }
+    const newText = before + formatted + after
+    setNoteText(newText)
+    setTimeout(() => {
+      textarea.focus()
+      textarea.selectionStart = start + formatted.length
+      textarea.selectionEnd = start + formatted.length
+    }, 0)
   }
 
   return (
@@ -133,7 +169,16 @@ function LecturePage() {
                   <div key={note.id} className="bg-white/40 rounded-lg p-3 border border-[#d9a870] group relative">
                     <div className="flex gap-2">
                       <span className="text-xs font-medium text-[#3b1f00] flex-shrink-0">{index + 1}.</span>
-                      <p className="text-sm text-[#7a4a10] break-words flex-1">{note.text}</p>
+                      <div
+                        className="text-sm text-[#7a4a10] break-words break-all flex-1"
+                        dangerouslySetInnerHTML={{
+                          __html: marked.parse(
+                            note.text
+                              .replace(/\n/g, '  \n') // Markdown line breaks
+                              .replace(/<u>(.*?)<\/u>/g, '<u>$1</u>') // Allow <u> tags
+                          )
+                        }}
+                      />
                       <button
                         onClick={() => handleDeleteNote(note.id)}
                         className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
@@ -153,6 +198,7 @@ function LecturePage() {
               {/* Note Input */}
               <div className="bg-white/30 rounded-lg border border-[#d9a870] mb-3">
                 <textarea
+                  id="note-textarea"
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
                   placeholder="Type here..."
@@ -160,10 +206,10 @@ function LecturePage() {
                 />
                 {/* Toolbar */}
                 <div className="flex items-center gap-1 px-2 py-1.5 border-t border-[#d9a870] bg-[#3b1f00]/5">
-                  <button className="p-1.5 hover:bg-[#d9a870] rounded text-xs font-bold text-[#3b1f00]">B</button>
-                  <button className="p-1.5 hover:bg-[#d9a870] rounded text-xs italic text-[#3b1f00]">I</button>
-                  <button className="p-1.5 hover:bg-[#d9a870] rounded text-xs underline text-[#3b1f00]">U</button>
-                  <button className="p-1.5 hover:bg-[#d9a870] rounded text-xs line-through text-[#3b1f00]">S</button>
+                  <button type="button" className="p-1.5 hover:bg-[#d9a870] rounded text-xs font-bold text-[#3b1f00]" onClick={() => formatText('bold')}>B</button>
+                  <button type="button" className="p-1.5 hover:bg-[#d9a870] rounded text-xs italic text-[#3b1f00]" onClick={() => formatText('italic')}>I</button>
+                  <button type="button" className="p-1.5 hover:bg-[#d9a870] rounded text-xs underline text-[#3b1f00]" onClick={() => formatText('underline')}>U</button>
+                  <button type="button" className="p-1.5 hover:bg-[#d9a870] rounded text-xs line-through text-[#3b1f00]" onClick={() => formatText('strikethrough')}>S</button>
                   <div className="flex-1"></div>
                   <button className="p-1.5 hover:bg-[#d9a870] rounded">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
