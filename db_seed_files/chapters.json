@@ -1,0 +1,16 @@
+[
+    {
+        "id": 1,
+        "course_id": 1,
+        "chapter_number": 1,
+        "title": "BV: Canto 1",
+        "description": ""
+    },
+    {
+        "id": 2,
+        "course_id": 1,
+        "chapter_number": 3,
+        "title": "BV: Canto 3",
+        "description": ""
+    }
+]

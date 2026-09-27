@@ -1,0 +1,98 @@
+[
+    {
+        "index": 1,
+        "verse_name": "SB 3.14.1",
+        "start_time": "00:04:29",
+        "end_time": "00:07:33"
+    },
+    {
+        "index": 2,
+        "verse_name": "SB 3.14.2",
+        "start_time": "00:07:33",
+        "end_time": "00:13:03"
+    },
+    {
+        "index": 3,
+        "verse_name": "SB 3.14.3",
+        "start_time": "00:13:03",
+        "end_time": "00:13:51"
+    },
+    {
+        "index": 4,
+        "verse_name": "SB 3.14.4",
+        "start_time": "00:13:51",
+        "end_time": "00:17:00"
+    },
+    {
+        "index": 5,
+        "verse_name": "SB 3.14.5",
+        "start_time": "00:17:00",
+        "end_time": "00:20:30"
+    },
+    {
+        "index": 6,
+        "verse_name": "SB 3.14.6",
+        "start_time": "00:20:30",
+        "end_time": "00:23:00"
+    },
+    {
+        "index": 7,
+        "verse_name": "SB 3.14.7",
+        "start_time": "00:23:00",
+        "end_time": "00:23:40"
+    },
+    {
+        "index": 8,
+        "verse_name": "SB 3.14.8",
+        "start_time": "00:23:40",
+        "end_time": "00:27:26"
+    },
+    {
+        "index": 9,
+        "verse_name": "SB 3.14.9",
+        "start_time": "00:27:26",
+        "end_time": "00:34:03"
+    },
+    {
+        "index": 10,
+        "verse_name": "SB 3.14.10",
+        "start_time": "00:34:03",
+        "end_time": "00:39:46"
+    },
+    {
+        "index": 11,
+        "verse_name": "SB 3.14.11",
+        "start_time": "00:39:46",
+        "end_time": "00:41:51"
+    },
+    {
+        "index": 12,
+        "verse_name": "SB 3.14.12",
+        "start_time": "00:41:51",
+        "end_time": "00:47:35"
+    },
+    {
+        "index": 13,
+        "verse_name": "SB 3.14.13",
+        "start_time": "00:47:35",
+        "end_time": "00:55:11"
+    },
+    {
+        "index": 14,
+        "verse_name": "SB 3.14.14",
+        "start_time": "00:55:11",
+        "end_time": "00:59:41"
+    },
+    {
+        "index": 15,
+        "verse_name": "SB 3.14.15",
+        "start_time": "00:59:41",
+        "end_time": "01:07:49"
+    },
+    {
+        "index": 16,
+        "verse_name": "SB 3.14.16",
+        "start_time": "01:07:49",
+        "end_time": "01:09:59"
+    }
+]

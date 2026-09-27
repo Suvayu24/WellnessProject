@@ -1,148 +1,129 @@
-import Navbar from '../components/Navbar'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useState } from 'react'
+import Navbar from '../components/Navbar'
+import NoticeModal from '../components/NoticeModal'
+import { apiFetch } from '../lib/api'
 
 function ChapterPage() {
   const navigate = useNavigate()
   const { courseId, chapterId } = useParams()
-  const [activeTab, setActiveTab] = useState('lectures')
+  const [chapter, setChapter] = useState(null)
+  const [course, setCourse] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
 
-  // Dummy lectures
-  const lectures = [
-    { 
-      id: 1, 
-      title: 'Introduction to the Course', 
-      description: 'Overview and setup',
-      thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg'
-    },
-    { 
-      id: 2, 
-      title: 'Getting Started', 
-      description: 'First steps and environment',
-      thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg'
-    },
-    { 
-      id: 3, 
-      title: 'Core Concepts', 
-      description: 'Understanding the fundamentals',
-      thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg'
-    },
-  ]
+  useEffect(() => {
+    const loadChapterAndCourse = async () => {
+      try {
+        const data = await apiFetch(`/chapters/${chapterId}`)
+        setChapter(data)
+        const courseData = await apiFetch(`/courses/${courseId}`)
+        setCourse(courseData)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadChapterAndCourse()
+  }, [chapterId, courseId])
+
+  const sections = chapter?.Sections || []
 
   return (
     <div className="min-h-screen bg-[#F3D4A5]">
       <Navbar />
-      
-      <div className="px-8 pt-10 pb-12">
-        <button 
+
+      <div className="px-5 sm:px-8 pt-10 pb-12">
+        <button
           onClick={() => navigate(`/course/${courseId}`)}
-          className="text-sm text-[#0f766e] font-medium mb-4 hover:underline"
+          className="mb-5 inline-flex items-center rounded-full border border-[#d9a870] bg-[#EEBD89]/70 px-4 py-2 text-sm font-semibold text-[#0f766e] transition-colors hover:border-[#0f766e] hover:bg-[#EEBD89]"
         >
-          ← Back to Course
+          Back to Course
         </button>
-        
-        <h2 className="text-xl font-medium text-[#3b1f00] mb-6">
-          <span 
-            onClick={() => navigate('/courses')} 
-            className="cursor-pointer hover:text-[#0f766e] transition-colors"
-          >
+
+        <h2 className="text-base font-semibold tracking-tight text-[#7a4a10] mb-6">
+          <span onClick={() => navigate('/courses')} className="cursor-pointer hover:text-[#0f766e] transition-colors">
             Courses
           </span>
           {' > '}
-          <span 
-            onClick={() => navigate(`/course/${courseId}`)} 
-            className="cursor-pointer hover:text-[#0f766e] transition-colors"
-          >
-            Course {courseId}
+          <span onClick={() => navigate(`/course/${courseId}`)} className="cursor-pointer hover:text-[#0f766e] transition-colors">
+            {course?.title ? course.title : `Course ${courseId}`}
           </span>
           {' > '}
-          <span 
-            onClick={() => navigate(`/course/${courseId}/chapter/${chapterId}`)} 
-            className="cursor-pointer hover:text-[#0f766e] transition-colors"
-          >
-            Chapter {chapterId}
+          <span onClick={() => navigate(`/course/${courseId}/chapter/${chapterId}`)} className="cursor-pointer hover:text-[#0f766e] transition-colors">
+            {chapter?.title || `Chapter ${chapterId}`}
           </span>
         </h2>
 
-        {/* Tabs */}
-        <div className="flex gap-3 mb-6">
-          <button
-            onClick={() => setActiveTab('lectures')}
-            className={`px-6 py-2.5 rounded-lg border-2 font-medium text-sm transition-all ${
-              activeTab === 'lectures'
-                ? 'bg-[#0f766e] text-white border-[#0f766e]'
-                : 'bg-[#EEBD89] text-[#3b1f00] border-[#d9a870] hover:border-[#0f766e]'
-            }`}
-          >
-            Lectures
-          </button>
-          <button
-            onClick={() => setActiveTab('quizzes')}
-            className={`px-6 py-2.5 rounded-lg border-2 font-medium text-sm transition-all ${
-              activeTab === 'quizzes'
-                ? 'bg-[#0f766e] text-white border-[#0f766e]'
-                : 'bg-[#EEBD89] text-[#3b1f00] border-[#d9a870] hover:border-[#0f766e]'
-            }`}
-          >
-            Quizzes
-          </button>
-          <button
-            onClick={() => setActiveTab('attachments')}
-            className={`px-6 py-2.5 rounded-lg border-2 font-medium text-sm transition-all ${
-              activeTab === 'attachments'
-                ? 'bg-[#0f766e] text-white border-[#0f766e]'
-                : 'bg-[#EEBD89] text-[#3b1f00] border-[#d9a870] hover:border-[#0f766e]'
-            }`}
-          >
-            Attachments
-          </button>
-        </div>
+        {loading && <div className="text-sm text-[#7a4a10]">Loading chapter...</div>}
+        {error && <div className="text-sm text-red-700">{error}</div>}
+        <NoticeModal message={notice} onClose={() => setNotice('')} />
 
-        {/* Lectures Grid */}
-        {activeTab === 'lectures' && (
-          <div className="grid grid-cols-3 gap-5">
-            {lectures.map(lecture => (
-              <div
-                key={lecture.id}
-                onClick={() => navigate(`/course/${courseId}/chapter/${chapterId}/lecture/${lecture.id}`)}
-                className="bg-[#EEBD89] rounded-2xl border border-[#d9a870] overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(15,118,110,0.13)] hover:border-[#0f766e]"
-              >
-                {/* Thumbnail */}
-                <div className="w-full h-40 bg-[#d9a870] overflow-hidden">
-                  <div className="w-full h-full bg-[repeating-linear-gradient(45deg,#d9a870,#d9a870_10px,#c99660_10px,#c99660_20px)] flex items-center justify-center">
-                    <span className="bg-[rgba(243,212,165,0.85)] px-3 py-1 rounded-full text-xs text-[#3b1f00] font-medium">
-                      YT Thumbnail
-                    </span>
+        {!loading && !error && sections.length === 0 && (
+          <div className="bg-[#EEBD89] rounded-2xl border border-[#d9a870] p-8 text-center text-[#3b1f00]">
+            No sections available yet.
+          </div>
+        )}
+
+        <div className="space-y-4">
+          {sections.map((section) => (
+            <div
+              key={section.id}
+              onClick={() => {
+                if (section.isLocked) {
+                  setNotice(section.lockMessage || 'Complete previous sections first.')
+                  return
+                }
+                navigate(`/course/${courseId}/chapter/${chapterId}/section/${section.id}`)
+              }}
+              className={`bg-[#EEBD89] rounded-2xl border border-[#d9a870] p-5 transition-all duration-200 ${
+                section.isLocked
+                  ? 'cursor-not-allowed opacity-70'
+                  : 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(15,118,110,0.12)] hover:border-[#0f766e]'
+              }`}
+            >
+              <div className="flex flex-col lg:flex-row lg:items-center gap-5">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="text-xl font-bold tracking-tight text-[#4f2f0d]">
+                      {section.title}
+                    </div>
+                    {section.isLocked && (
+                      <span className="rounded-full border border-[#d9a870] bg-white/35 px-2.5 py-1 text-[11px] font-semibold text-[#7a4a10]">
+                        Locked
+                      </span>
+                    )}
                   </div>
+                  <div className="max-w-2xl text-[15px] leading-6 text-[#684214]">{section.description}</div>
                 </div>
-                
-                {/* Content */}
-                <div className="p-4">
-                  <div className="text-[15px] font-medium text-[#3b1f00] mb-1">
-                    Lecture {lecture.id}
+
+                <div className="w-full lg:w-[420px]">
+                  <div className="flex items-center justify-between text-sm font-semibold text-[#7a4a10] mb-2">
+                    <span>Progress</span>
+                    <span className="font-bold text-[#0f766e]">{section.progress?.percent || 0}%</span>
                   </div>
-                  <div className="text-sm text-[#7a4a10]">
-                    {lecture.description}
+                  <div className="h-2.5 bg-white/45 rounded-full border border-[#d9a870] overflow-hidden mb-3">
+                    <div
+                      className="h-full bg-[#0f766e] rounded-full transition-all"
+                      style={{ width: `${section.progress?.percent || 0}%` }}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="bg-white/35 border border-[#d9a870] rounded-lg px-3 py-2 font-semibold text-[#3b1f00]">
+                      Lectures: <span className="font-bold">{section.progress?.completedLectures || 0}/{section.progress?.totalLectures || 0}</span>
+                    </div>
+                    <div className="bg-white/35 border border-[#d9a870] rounded-lg px-3 py-2 font-semibold text-[#3b1f00]">
+                      Quizzes: <span className="font-bold">{section.progress?.attemptedQuizzes || 0}/{section.progress?.totalQuizzes || 0}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Quizzes Placeholder */}
-        {activeTab === 'quizzes' && (
-          <div className="bg-[#EEBD89] rounded-2xl border border-[#d9a870] p-8 text-center">
-            <span className="text-[#3b1f00]">Quizzes coming soon...</span>
-          </div>
-        )}
-
-        {/* Attachments Placeholder */}
-        {activeTab === 'attachments' && (
-          <div className="bg-[#EEBD89] rounded-2xl border border-[#d9a870] p-8 text-center">
-            <span className="text-[#3b1f00]">Attachments coming soon...</span>
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

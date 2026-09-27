@@ -15,6 +15,7 @@ model User {
   username     String   @unique
   email        String   @unique
   passwordHash String
+  adminAccess  Boolean  @default(false)
   createdAt    DateTime @default(now())
   notes        Note[]
   progress     UserProgress[]
@@ -51,6 +52,8 @@ model Lecture {
   title         String
   description   String
   videoId       String
+  startTimestamp Int?
+  endTimestamp   Int?
   createdAt     DateTime  @default(now())
   notes         Note[]
   attachments   Attachment[]

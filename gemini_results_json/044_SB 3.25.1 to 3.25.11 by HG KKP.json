@@ -1,0 +1,68 @@
+[
+    {
+        "index": 1,
+        "verse_name": "SB 3.25.1",
+        "start_time": "[00:18:29]",
+        "end_time": "[00:19:32]"
+    },
+    {
+        "index": 2,
+        "verse_name": "SB 3.25.2",
+        "start_time": "[00:19:32]",
+        "end_time": "[00:20:05]"
+    },
+    {
+        "index": 3,
+        "verse_name": "SB 3.25.3",
+        "start_time": "[00:20:05]",
+        "end_time": "[00:20:42]"
+    },
+    {
+        "index": 4,
+        "verse_name": "SB 3.25.4",
+        "start_time": "[00:20:42]",
+        "end_time": "[00:41:23]"
+    },
+    {
+        "index": 5,
+        "verse_name": "SB 3.25.5",
+        "start_time": "[00:41:23]",
+        "end_time": "[00:49:28]"
+    },
+    {
+        "index": 6,
+        "verse_name": "SB 3.25.6",
+        "start_time": "[00:49:28]",
+        "end_time": "[00:53:47]"
+    },
+    {
+        "index": 7,
+        "verse_name": "SB 3.25.7",
+        "start_time": "[00:53:47]",
+        "end_time": "[01:14:59]"
+    },
+    {
+        "index": 8,
+        "verse_name": "SB 3.25.8",
+        "start_time": "[01:14:59]",
+        "end_time": "[01:31:38]"
+    },
+    {
+        "index": 9,
+        "verse_name": "SB 3.25.9",
+        "start_time": "[01:31:38]",
+        "end_time": "[01:34:50]"
+    },
+    {
+        "index": 10,
+        "verse_name": "SB 3.25.10",
+        "start_time": "[01:34:50]",
+        "end_time": "[01:42:27]"
+    },
+    {
+        "index": 11,
+        "verse_name": "SB 3.25.11",
+        "start_time": "[01:42:27]",
+        "end_time": "[02:02:26]"
+    }
+]

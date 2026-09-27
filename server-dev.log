@@ -1,0 +1,9 @@
+
+> server@1.0.0 dev
+> node server.js
+
+◇ injected env (9) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+Database synced!
+Server running on port 5000
+AdminJS available at http://localhost:5000/admin

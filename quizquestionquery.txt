@@ -1,0 +1,32 @@
+INSERT INTO lecture_quiz_questions (
+  quiz_id,
+  question_order,
+  type,
+  question_text,
+  question_image_url,
+  options,
+  correct_option_ids,
+  marks,
+  created_at
+) VALUES (
+  1, -- quiz_id
+  1, -- question_order
+  'mcq', -- type
+  'What is the capital of France?', -- question_text
+  NULL, -- question_image_url
+  '[{"id":0,"text":"Paris"},{"id":1,"text":"London"},{"id":2,"text":"Berlin"},{"id":3,"text":"Madrid"}]', -- options as JSON string
+  '[0]', -- correct_option_ids as JSON string (index of correct option)
+  1, -- marks
+  NOW() -- created_at
+),
+(
+  1, -- quiz_id
+  2, -- question_order
+  'mcq', -- type
+  'What is the capital of France?', -- question_text
+  NULL, -- question_image_url
+  '[{"id":0,"text":"Paris"},{"id":1,"text":"London"},{"id":2,"text":"Berlin"},{"id":3,"text":"Madrid"}]', -- options as JSON string
+  '[0]', -- correct_option_ids as JSON string (index of correct option)
+  1, -- marks
+  NOW() -- created_at
+);

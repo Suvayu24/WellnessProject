@@ -1,0 +1,62 @@
+[
+    {
+        "index": 1,
+        "verse_name": "SB 3.14.19",
+        "start_time": "00:01:03",
+        "end_time": "00:15:16"
+    },
+    {
+        "index": 2,
+        "verse_name": "SB 3.14.20",
+        "start_time": "00:15:16",
+        "end_time": "00:26:17"
+    },
+    {
+        "index": 3,
+        "verse_name": "SB 3.14.21",
+        "start_time": "00:26:17",
+        "end_time": "00:33:17"
+    },
+    {
+        "index": 4,
+        "verse_name": "SB 3.14.22",
+        "start_time": "00:33:17",
+        "end_time": "00:34:31"
+    },
+    {
+        "index": 5,
+        "verse_name": "SB 3.14.23",
+        "start_time": "00:34:31",
+        "end_time": "00:39:32"
+    },
+    {
+        "index": 6,
+        "verse_name": "SB 3.14.24",
+        "start_time": "00:40:02",
+        "end_time": "01:01:04"
+    },
+    {
+        "index": 7,
+        "verse_name": "SB 3.14.25",
+        "start_time": "01:01:04",
+        "end_time": "01:09:01"
+    },
+    {
+        "index": 8,
+        "verse_name": "SB 3.14.26",
+        "start_time": "01:09:01",
+        "end_time": "01:12:51"
+    },
+    {
+        "index": 9,
+        "verse_name": "SB 3.14.27",
+        "start_time": "01:12:51",
+        "end_time": "01:18:21"
+    },
+    {
+        "index": 10,
+        "verse_name": "SB 3.14.29",
+        "start_time": "01:18:56",
+        "end_time": "01:32:28"
+    }
+]

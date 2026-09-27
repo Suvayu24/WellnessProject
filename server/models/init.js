@@ -44,6 +44,8 @@ const createTables = async () => {
         chapter_id INT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
         title VARCHAR(255) NOT NULL,
         video_id VARCHAR(100),
+        start_timestamp INT,
+        end_timestamp INT,
         thumbnail VARCHAR(500),
         description TEXT,
         lecture_order INT,
