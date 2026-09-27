@@ -1,0 +1,107 @@
+// Prisma schema for your project models
+// Save this as prisma/schema.prisma in your server directory
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  notes        Note[]
+  progress     UserProgress[]
+}
+
+model Course {
+  id          Int       @id @default(autoincrement())
+  title       String
+  subtitle    String?
+  description String
+  category    String
+  thumbnailUrl String?
+  createdAt   DateTime  @default(now())
+  chapters    Chapter[]
+}
+
+model Chapter {
+  id           Int       @id @default(autoincrement())
+  course       Course    @relation(fields: [courseId], references: [id])
+  courseId     Int
+  chapterNumber Int
+  title        String
+  description  String
+  createdAt    DateTime  @default(now())
+  lectures     Lecture[]
+  quiz         Quiz?
+}
+
+model Lecture {
+  id            Int       @id @default(autoincrement())
+  chapter       Chapter   @relation(fields: [chapterId], references: [id])
+  chapterId     Int
+  lectureNumber Int
+  title         String
+  description   String
+  videoId       String
+  createdAt     DateTime  @default(now())
+  notes         Note[]
+  attachments   Attachment[]
+  progress      UserProgress[]
+}
+
+model Note {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  lecture    Lecture  @relation(fields: [lectureId], references: [id])
+  lectureId  Int
+  text       String
+  createdAt  DateTime @default(now())
+}
+
+model Quiz {
+  id         Int         @id @default(autoincrement())
+  chapter    Chapter     @relation(fields: [chapterId], references: [id])
+  chapterId  Int         @unique
+  title      String
+  createdAt  DateTime    @default(now())
+  questions  QuizQuestion[]
+}
+
+model QuizQuestion {
+  id            Int      @id @default(autoincrement())
+  quiz          Quiz     @relation(fields: [quizId], references: [id])
+  quizId        Int
+  questionText  String
+  options       Json
+  correctAnswer String
+  createdAt     DateTime @default(now())
+}
+
+model Attachment {
+  id         Int      @id @default(autoincrement())
+  lecture    Lecture  @relation(fields: [lectureId], references: [id])
+  lectureId  Int
+  fileName   String
+  fileUrl    String
+  fileType   String
+  createdAt  DateTime @default(now())
+}
+
+model UserProgress {
+  id             Int      @id @default(autoincrement())
+  user           User     @relation(fields: [userId], references: [id])
+  userId         Int
+  lecture        Lecture  @relation(fields: [lectureId], references: [id])
+  lectureId      Int
+  completed      Boolean  @default(false)
+  lastWatchedAt  DateTime?
+}

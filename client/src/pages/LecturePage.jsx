@@ -8,12 +8,11 @@ function LecturePage() {
   const { courseId, chapterId, lectureId } = useParams()
   const [noteText, setNoteText] = useState('')
   const [savedNotes, setSavedNotes] = useState([
-    { id: 1, text: 'ABCDEFGHAWNDNAWODNOadad awdasdasdedasda' },
-    { id: 2, text: 'Another sample note here' }
+    
   ])
 
   const lecture = {
-    title: 'Lecture 1',
+    title: `Lecture ${lectureId}`,
     description: 'This is the lecture description explaining what you will learn in this video.',
     videoId: 'dQw4w9WgXcQ'
   }
