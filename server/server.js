@@ -35,6 +35,9 @@ const startServer = async () => {
     console.error('DB sync error:', err)
   }
 
+  app.get('/health', (_req, res) => {
+    res.status(200).json({ status: 'ok' })
+  })
   app.use('/api/courses', courseRoutes)
   app.use('/api/books', bookRoutes)
   app.use('/api/chapters', chapterRoutes)
@@ -50,7 +53,7 @@ const startServer = async () => {
   app.use('/api/notifications', notificationRoutes)
   app.use('/api/admin', adminCentreRoutes)
 
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`)
     console.log(`AdminJS available at http://localhost:${PORT}/admin`)
   })
