@@ -479,6 +479,251 @@ button[aria-label*="notebooks menu"] span {
   background-color: var(--text) !important;
 }
 
+/* Lecture player: a full-width timeline with the supplied black-outline control language. */
+.lecture-player-shell {
+  isolation: isolate;
+}
+
+.lecture-player-controls {
+  display: grid;
+  gap: 12px;
+}
+
+.player-timeline-row {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.player-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.player-timestamp {
+  min-width: 42px;
+  color: #2b1700;
+  font-size: 0.76rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.player-control {
+  color: #111827;
+  border: 2px solid #111827;
+  background: #fffdf8;
+  box-shadow: 0 2px 0 rgba(17, 24, 39, 0.16);
+  transition: transform 150ms ease, color 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+
+.player-control:hover:not(:disabled) {
+  color: #0f766e;
+  border-color: #111827;
+  background: #d9f3ee;
+  box-shadow: 0 3px 0 rgba(17, 24, 39, 0.2);
+  transform: translateY(-2px);
+}
+
+.player-control-active {
+  color: #ffffff;
+  border-color: #111827;
+  background: #0f766e;
+}
+
+.player-control-asset {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.player-control-asset img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.player-control-asset:hover:not(:disabled) {
+  background: transparent;
+  box-shadow: none;
+}
+
+.player-play-control {
+  color: #111827;
+  border-color: #111827;
+  background: #fffdf8;
+}
+
+.player-play-control-active {
+  color: #ffffff;
+  background: #0f766e;
+}
+
+.player-play-control:hover:not(:disabled) {
+  color: #0f766e;
+  border-color: #111827;
+  background: #d9f3ee;
+}
+
+.player-play-control-active:hover:not(:disabled) {
+  color: #ffffff;
+  background: #0b665e;
+}
+
+.player-progress-groove {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 18px;
+  padding: 2px;
+  border: 2px solid #111827;
+  border-radius: 999px;
+  background: #f7e7ce;
+  box-shadow: inset 0 1px 2px rgba(17, 24, 39, 0.18), 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.player-seekbar,
+.player-volume-range {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent !important;
+  cursor: pointer;
+}
+
+.player-seekbar::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0f766e 0%, #0f766e var(--seek-progress), #c8b89f var(--seek-progress), #c8b89f 100%);
+  box-shadow: inset 0 1px 2px rgba(17, 24, 39, 0.18);
+}
+
+.player-seekbar::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0f766e 0%, #0f766e var(--seek-progress), #c8b89f var(--seek-progress), #c8b89f 100%);
+  box-shadow: inset 0 1px 2px rgba(17, 24, 39, 0.18);
+}
+
+.player-seekbar::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  margin-top: -4.5px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid #111827;
+  border-radius: 50%;
+  background: #0f766e;
+  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.3);
+}
+
+.player-seekbar::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #111827;
+  border-radius: 50%;
+  background: #0f766e;
+  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.3);
+}
+
+.player-seekbar:disabled,
+.player-volume-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.player-volume-popover,
+.player-settings-popover {
+  border: 2px solid #111827;
+  background: rgba(255, 253, 248, 0.98);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+  backdrop-filter: blur(12px);
+}
+
+.player-volume-range {
+  height: 5px;
+  background: #c8b89f !important;
+  border-radius: 999px;
+  accent-color: #0f766e;
+}
+
+.player-volume-range::-webkit-slider-thumb {
+  width: 13px;
+  height: 13px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid #111827;
+  border-radius: 50%;
+  background: #0f766e;
+}
+
+.player-setting-option {
+  color: #334155;
+}
+
+.player-setting-option:hover {
+  color: #0f766e;
+  background: #d9f3ee;
+}
+
+.player-video-play-button {
+  color: #111827;
+  background: rgba(0, 0, 0, 0.16);
+  transition: background 160ms ease;
+}
+
+.player-video-play-button > span {
+  border: 3px solid #111827;
+  background: #fffdf8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32);
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.player-video-play-button:hover {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.player-video-play-button:hover > span {
+  background: #d9f3ee;
+  transform: scale(1.06);
+}
+
+/* Fullscreen targets the complete shell, so the custom timeline and YouTube-like
+   controls remain available instead of disappearing with the embedded iframe. */
+.lecture-player-shell:fullscreen,
+.lecture-player-shell:-webkit-full-screen {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+  background: #000000;
+}
+
+.lecture-player-shell:fullscreen .lecture-video-stage,
+.lecture-player-shell:-webkit-full-screen .lecture-video-stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.lecture-player-shell:fullscreen .lecture-player-controls,
+.lecture-player-shell:-webkit-full-screen .lecture-player-controls {
+  flex: 0 0 auto;
+  padding: 16px clamp(18px, 5vw, 72px);
+  border-top-color: #9f7c51;
+}
+
 /* Modal-like overlays and slide-out panels. */
 .absolute.z-20,
 .absolute.z-30 {

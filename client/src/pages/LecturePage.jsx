@@ -5,6 +5,8 @@ import NotebookPanel from '../components/NotebookPanel'
 import NoticeModal from '../components/NoticeModal'
 import { useAuth } from '../context/AuthContext'
 import { apiFetch } from '../lib/api'
+import fullscreenVector from '../assets/player-fullscreen.png'
+import settingsVector from '../assets/player-settings.png'
 
 const toNonNegativeSeconds = (value) => {
   const seconds = Number(value)
@@ -42,6 +44,15 @@ const formatTime = (seconds) => {
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
+function VolumeIcon({ muted = false }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" aria-hidden="true">
+      <path d="M11 5 6.5 9H3v6h3.5l4.5 4z" />
+      {muted ? <><path d="m16 9 5 5m0-5-5 5" /></> : <><path d="M15 9.2a4 4 0 0 1 0 5.6" /><path d="M17.7 6.6a7.7 7.7 0 0 1 0 10.8" /></>}
+    </svg>
+  )
+}
+
 function LecturePage() {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -58,16 +69,36 @@ function LecturePage() {
   const [notice, setNotice] = useState('')
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
+  const [volume, setVolume] = useState(100)
+  const [volumeOpen, setVolumeOpen] = useState(false)
+  const [ccEnabled, setCcEnabled] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [playerReady, setPlayerReady] = useState(false)
   const [sliderTime, setSliderTime] = useState(0)
   const [segmentBounds, setSegmentBounds] = useState({ start: 0, end: null, effectiveEnd: null, duration: 0 })
   const playerRef = useRef(null)
+  const playerShellRef = useRef(null)
   const intervalRef = useRef(null)
   const lastTimeRef = useRef(0)
   const watchedSecondsRef = useRef(0)
   const actualDurationRef = useRef(0)
   const isSeekingRef = useRef(false)
   const playerElementId = `youtube-player-${lectureId}`
+
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  useEffect(() => {
+    const syncFullscreenState = () => {
+      setIsFullscreen(document.fullscreenElement === playerShellRef.current || document.webkitFullscreenElement === playerShellRef.current)
+    }
+
+    document.addEventListener('fullscreenchange', syncFullscreenState)
+    document.addEventListener('webkitfullscreenchange', syncFullscreenState)
+    return () => {
+      document.removeEventListener('fullscreenchange', syncFullscreenState)
+      document.removeEventListener('webkitfullscreenchange', syncFullscreenState)
+    }
+  }, [])
 
   useEffect(() => {
     const loadLecture = async () => {
@@ -119,6 +150,10 @@ function LecturePage() {
     setPlayerReady(false)
     setIsPlaying(false)
     setIsMuted(false)
+    setVolume(100)
+    setVolumeOpen(false)
+    setCcEnabled(false)
+    setSettingsOpen(false)
     setSegmentBounds(initialSegment)
     setSliderTime(resumeTime)
     isSeekingRef.current = false
@@ -223,6 +258,7 @@ function LecturePage() {
               event.target.seekTo(resumeTime, true)
             }
             if (event.target.isMuted?.()) setIsMuted(true)
+            setVolume(event.target.getVolume?.() ?? 100)
             setPlayerReady(true)
           },
           onStateChange: (event) => {
@@ -307,23 +343,49 @@ function LecturePage() {
     isSeekingRef.current = false
   }
 
-  const handleMuteToggle = () => {
+  const handleVolumeChange = (event) => {
+    const nextVolume = Number(event.target.value)
     const player = playerRef.current
     if (!player) return
-    if (player.isMuted?.()) {
-      player.unMute()
-      setIsMuted(false)
-    } else {
-      player.mute()
-      setIsMuted(true)
+    player.setVolume(nextVolume)
+    if (nextVolume > 0 && player.isMuted?.()) player.unMute()
+    if (nextVolume === 0 && !player.isMuted?.()) player.mute()
+    setVolume(nextVolume)
+    setIsMuted(nextVolume === 0)
+  }
+
+  const handleCaptionsToggle = () => {
+    const player = playerRef.current
+    if (!player || !playerReady) return
+
+    try {
+      if (ccEnabled) {
+        player.unloadModule?.('captions')
+      } else {
+        player.loadModule?.('captions')
+        player.setOption?.('captions', 'track', { languageCode: 'en' })
+      }
+      setCcEnabled((enabled) => !enabled)
+    } catch {
+      setNotice('Captions are not available for this video.')
     }
   }
 
+  const handlePlaybackRate = (rate) => {
+    playerRef.current?.setPlaybackRate?.(rate)
+    setSettingsOpen(false)
+  }
+
   const handleFullscreen = () => {
-    const iframe = playerRef.current?.getIframe?.()
-    if (!iframe) return
-    if (iframe.requestFullscreen) iframe.requestFullscreen()
-    else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen()
+    const playerShell = playerShellRef.current
+    if (!playerShell) return
+    if (document.fullscreenElement === playerShell || document.webkitFullscreenElement === playerShell) {
+      if (document.exitFullscreen) document.exitFullscreen()
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen()
+      return
+    }
+    if (playerShell.requestFullscreen) playerShell.requestFullscreen()
+    else if (playerShell.webkitRequestFullscreen) playerShell.webkitRequestFullscreen()
   }
 
   const attachments = lecture?.Attachments || []
@@ -337,6 +399,7 @@ function LecturePage() {
 
   const sliderMax = segmentBounds.duration || 0
   const relativeElapsed = Math.min(Math.max(sliderTime - segmentBounds.start, 0), sliderMax)
+  const sliderPercent = sliderMax > 0 ? (relativeElapsed / sliderMax) * 100 : 0
 
   return (
     <div className="min-h-screen bg-[#F3D4A5]">
@@ -407,8 +470,8 @@ function LecturePage() {
 
             <div className="flex flex-col xl:flex-row gap-6">
             <div className="flex-1">
-              <div className="bg-[#EEBD89] rounded-3xl border border-[#d9a870] overflow-hidden mb-6 shadow-[0_16px_38px_rgba(59,31,0,0.12)]">
-                <div className="relative aspect-video bg-black">
+              <div ref={playerShellRef} className="lecture-player-shell bg-[#EEBD89] rounded-3xl border border-[#d9a870] overflow-hidden mb-6 shadow-[0_16px_38px_rgba(59,31,0,0.12)]">
+                <div className="lecture-video-stage relative aspect-video bg-black">
                   <div id={playerElementId} className="w-full h-full" />
 
                   {playerReady && !isPlaying && (
@@ -416,90 +479,104 @@ function LecturePage() {
                       type="button"
                       onClick={handlePlayPause}
                       aria-label="Play video"
-                      className="absolute inset-0 flex items-center justify-center bg-black/25 transition-colors hover:bg-black/35"
+                      className="player-video-play-button absolute inset-0 flex items-center justify-center"
                     >
-                      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-[#0f766e] shadow-lg transition-transform hover:scale-105">
-                        <svg viewBox="0 0 24 24" className="ml-1 h-7 w-7" fill="currentColor">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
+                      <span className="flex h-16 w-16 items-center justify-center rounded-full">
+                        <svg viewBox="0 0 24 24" className="ml-1 h-7 w-7" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
                       </span>
                     </button>
                   )}
                 </div>
 
-                {/* Custom controls: replaces the native YouTube seekbar so playback
-                    can never be scrubbed outside this lecture's start/end segment. */}
-                <div className="flex items-center gap-3 border-t border-[#d9a870] bg-[#EEBD89] px-4 py-3">
-                  <button
-                    type="button"
-                    onClick={handlePlayPause}
-                    disabled={!playerReady}
-                    aria-label={isPlaying ? 'Pause' : 'Play'}
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0f766e] text-white transition-colors hover:bg-[#085044] disabled:opacity-40"
-                  >
-                    {isPlaying ? (
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                        <path d="M6 5h4v14H6zM14 5h4v14h-4z" />
-                      </svg>
-                    ) : (
-                      <svg viewBox="0 0 24 24" className="ml-0.5 h-4 w-4" fill="currentColor">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    )}
-                  </button>
+                {/* Custom controls keep seeking inside this lecture's start/end segment. */}
+                <div className="lecture-player-controls border-t border-[#d9a870] bg-[#EEBD89] px-3 py-3 sm:px-4">
+                  <div className="player-timeline-row">
+                    <span className="player-timestamp text-right" aria-label="Current time">{formatTime(relativeElapsed)}</span>
+                    <div className="player-progress-groove min-w-0 flex-1">
+                      <input
+                        type="range"
+                        min={0}
+                        max={sliderMax || 1}
+                        step={1}
+                        value={Math.min(relativeElapsed, sliderMax || 0)}
+                        onChange={handleSliderChange}
+                        onMouseUp={commitSlider}
+                        onTouchEnd={commitSlider}
+                        onKeyUp={commitSlider}
+                        disabled={!playerReady || sliderMax <= 0}
+                        aria-label="Seek within lecture segment"
+                        className="player-seekbar"
+                        style={{ '--seek-progress': `${sliderPercent}%` }}
+                      />
+                    </div>
+                    <span className="player-timestamp" aria-label="Video duration">{formatTime(sliderMax)}</span>
+                  </div>
 
-                  <span className="w-10 shrink-0 text-right text-xs font-semibold tabular-nums text-[#3b1f00]">
-                    {formatTime(relativeElapsed)}
-                  </span>
+                  <div className="player-action-row">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handlePlayPause}
+                        disabled={!playerReady}
+                        aria-label={isPlaying ? 'Pause' : 'Play'}
+                        className={`player-control player-play-control flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${isPlaying ? 'player-play-control-active' : ''}`}
+                      >
+                        {isPlaying ? (
+                          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M6.5 5.5h4v13h-4zm7 0h4v13h-4z" /></svg>
+                        ) : (
+                          <svg viewBox="0 0 24 24" className="ml-0.5 h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M7 4.6v14.8L19 12z" /></svg>
+                        )}
+                      </button>
 
-                  <input
-                    type="range"
-                    min={0}
-                    max={sliderMax || 1}
-                    step={1}
-                    value={Math.min(relativeElapsed, sliderMax || 0)}
-                    onChange={handleSliderChange}
-                    onMouseUp={commitSlider}
-                    onTouchEnd={commitSlider}
-                    onKeyUp={commitSlider}
-                    disabled={!playerReady || sliderMax <= 0}
-                    aria-label="Seek within lecture segment"
-                    className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-[#3b1f00]/15 accent-[#0f766e] disabled:cursor-not-allowed"
-                  />
+                      <div className="relative shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setVolumeOpen((open) => !open)}
+                          disabled={!playerReady}
+                          aria-label={isMuted || volume === 0 ? 'Unmute' : 'Volume'}
+                          aria-expanded={volumeOpen}
+                          className="player-control flex h-10 w-10 items-center justify-center rounded-full disabled:opacity-40"
+                        >
+                          <VolumeIcon muted={isMuted || volume === 0} />
+                        </button>
+                        {volumeOpen && (
+                          <div className="player-volume-popover absolute bottom-[calc(100%+12px)] left-0 z-20 w-40 rounded-xl p-3">
+                            <div className="mb-2 flex items-center justify-between text-xs font-semibold text-slate-700"><span>Volume</span><span>{volume}%</span></div>
+                            <input type="range" min="0" max="100" value={volume} onChange={handleVolumeChange} aria-label="Volume" className="player-volume-range w-full" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-                  <span className="w-10 shrink-0 text-xs font-semibold tabular-nums text-[#3b1f00]">
-                    {formatTime(sliderMax)}
-                  </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleCaptionsToggle}
+                        disabled={!playerReady}
+                        aria-label={ccEnabled ? 'Turn captions off' : 'Turn captions on'}
+                        aria-pressed={ccEnabled}
+                        className={`player-control flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${ccEnabled ? 'player-control-active' : ''}`}
+                      >
+                        <span className="text-xs font-extrabold tracking-tight" aria-hidden="true">CC</span>
+                      </button>
 
-                  <button
-                    type="button"
-                    onClick={handleMuteToggle}
-                    disabled={!playerReady}
-                    aria-label={isMuted ? 'Unmute' : 'Mute'}
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#d9a870] text-[#3b1f00] transition-colors hover:border-[#0f766e] hover:text-[#0f766e] disabled:opacity-40"
-                  >
-                    {isMuted ? (
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                        <path d="M16.5 12A4.5 4.5 0 0 0 14 8v1.8l2.48 2.48c.01-.09.02-.18.02-.28zM19 12c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z" />
-                      </svg>
-                    ) : (
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-                      </svg>
-                    )}
-                  </button>
+                      <div className="relative shrink-0">
+                        <button type="button" onClick={() => setSettingsOpen((open) => !open)} disabled={!playerReady} aria-label="Player settings" aria-expanded={settingsOpen} className="player-control player-control-asset flex h-10 w-10 items-center justify-center rounded-full disabled:opacity-40">
+                          <img src={settingsVector} alt="" aria-hidden="true" />
+                        </button>
+                        {settingsOpen && (
+                          <div className="player-settings-popover absolute bottom-[calc(100%+12px)] right-0 z-20 w-44 rounded-xl p-2">
+                            <p className="px-2 py-1 text-xs font-semibold text-slate-500">Playback speed</p>
+                            {[0.75, 1, 1.25, 1.5, 2].map((rate) => <button key={rate} type="button" onClick={() => handlePlaybackRate(rate)} className="player-setting-option w-full rounded-lg px-2 py-1.5 text-left text-sm">{rate === 1 ? 'Normal' : `${rate}x`}</button>)}
+                          </div>
+                        )}
+                      </div>
 
-                  <button
-                    type="button"
-                    onClick={handleFullscreen}
-                    disabled={!playerReady}
-                    aria-label="Fullscreen"
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#d9a870] text-[#3b1f00] transition-colors hover:border-[#0f766e] hover:text-[#0f766e] disabled:opacity-40"
-                  >
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                      <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
-                    </svg>
-                  </button>
+                      <button type="button" onClick={handleFullscreen} disabled={!playerReady} aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'} className="player-control player-control-asset flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40">
+                        <img src={fullscreenVector} alt="" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
